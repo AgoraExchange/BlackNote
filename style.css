@@ -1,0 +1,563 @@
+/* ===========================
+   Sexure Notes — Style Sheet
+   Theme: Dark Modern iOS
+   =========================== */
+
+:root {
+  --bg: #0c0f14;
+  --panel: #11151d;
+  --accent: #64ffda;
+  --text: #e6edf3;
+  --text-sec: #8b97a5;
+  --danger: #ff5c5c;
+  --radius: 14px;
+  --transition: 0.25s ease;
+  --shadow: 0 8px 25px rgba(0,0,0,0.45);
+  color-scheme: dark;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  max-width: 500px;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* ===== HEADER ===== */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+}
+.app-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+.subtitle {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-sec);
+}
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+.icon-btn:active { opacity: 0.7; }
+
+/* ===== MAIN ===== */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+/* Public notepad */
+.notepad {
+  flex: 1;
+  background: var(--panel);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 16px;
+  resize: none;
+  outline: none;
+  font-size: 1rem;
+  line-height: 1.5rem;
+  color: var(--text);
+}
+.note-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  font-size: 0.92rem;
+  transition: var(--transition);
+}
+.btn:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 4px rgba(100,255,218,0.18);
+}
+.btn-primary { background: var(--accent); color: #000; font-weight: 600; }
+.btn-accent  { background: var(--accent); color: #000; }
+.btn-ghost   { background: rgba(255,255,255,0.06); color: var(--text-sec); }
+.btn-danger  { background: var(--danger); color: #fff; }
+.btn:active  { transform: translateY(0.5px) scale(0.995); }
+
+/* ===== VAULT VIEW ===== */
+.vault-panel { display: none; }
+.vault-panel.show { display: flex; }
+
+.vault-header { margin-bottom: 12px; }
+.vault-header h2 { margin: 0 0 6px 0; }
+.vault-sub { margin: 0; font-size: 0.85rem; color: var(--text-sec); }
+
+/* Storage indicator */
+.storage-wrap {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.storage-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--text-sec);
+  margin-bottom: 8px;
+}
+.storage-bar {
+  position: relative;
+  height: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.storage-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #32d6b8 60%, #10b39c);
+  transition: width 0.4s ease;
+}
+.storage-detail {
+  display: block;
+  margin-top: 6px;
+  color: var(--text-sec);
+  font-size: 0.8rem;
+  text-align: right;
+}
+
+.secure-list {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: var(--radius);
+  background: var(--panel);
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.secure-item {
+  background: rgba(255,255,255,0.05);
+  padding: 14px;
+  margin-bottom: 10px;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.secure-item-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.secure-item-title { font-weight: 600; font-size: 0.98rem; }
+.secure-item-time  { color: var(--text-sec); font-size: 0.82rem; }
+
+.secure-item-btn {
+  background: rgba(255,255,255,0.08);
+  color: var(--text);
+  border: none;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  transition: var(--transition);
+}
+.secure-item-btn:active { transform: scale(0.98); }
+
+.secure-item-blur {
+  margin-top: 8px;
+  border-radius: 10px;
+  padding: 10px;
+  background: rgba(255,255,255,0.06);
+  filter: blur(6px);
+  user-select: none;
+  pointer-events: none;
+}
+
+.empty-hint {
+  color: var(--text-sec);
+  text-align: center;
+  margin-top: 30px;
+  font-size: 0.9rem;
+}
+
+.vault-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+  padding: 10px 0 16px;
+  text-align: center;
+  color: var(--text-sec);
+  font-size: 0.8rem;
+}
+
+/* ===== MODALS (shared) ===== */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 40;
+  opacity: 1;
+  transition: var(--transition);
+}
+.modal.hidden { opacity: 0; pointer-events: none; }
+
+.modal-panel {
+  background: var(--panel);
+  border-radius: var(--radius);
+  padding: 20px;
+  width: 92%;
+  max-width: 520px;
+  box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+/* ===== FORM FIELDS ===== */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.field label {
+  font-size: 0.85rem;
+  color: var(--text-sec);
+}
+.input, .secure-textarea {
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px 14px;
+  outline: none;
+  transition: var(--transition);
+  width: 100%;
+}
+.input::placeholder, .secure-textarea::placeholder { color: rgba(230,237,243,0.45); }
+.input:focus, .secure-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(100,255,218,0.13);
+}
+.secure-textarea {
+  min-height: 160px;
+  line-height: 1.5rem;
+  resize: vertical;
+}
+
+/* ===== VIEWER (note details) ===== */
+.viewer-block { margin-bottom: 12px; }
+.viewer-label { color: var(--text-sec); font-size: 0.85rem; margin-bottom: 6px; }
+.viewer-value {
+  background: rgba(255,255,255,0.06);
+  padding: 10px 12px;
+  border-radius: 12px;
+  word-break: break-word;
+}
+.viewer-value.link { color: var(--accent); text-decoration: none; }
+.viewer-value.link:focus-visible { outline: 0; box-shadow: 0 0 0 4px rgba(100,255,218,0.18); }
+.viewer-note {
+  margin: 0;
+  background: rgba(255,255,255,0.06);
+  padding: 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ===== PASSWORD KEYPAD ===== */
+.keypad-panel h3 { text-align: center; margin-bottom: 12px; }
+.pin-display {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.pin-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  transition: var(--transition);
+}
+.pin-dot.filled { background: var(--accent); }
+
+.keypad {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.key-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+.key {
+  background: rgba(255,255,255,0.08);
+  border: none;
+  border-radius: 50%;
+  width: 54px;
+  height: 54px;
+  color: var(--text);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: var(--transition);
+}
+.key:active { transform: scale(0.96); background: rgba(255,255,255,0.18); }
+.key-back { font-size: 1.2rem; }
+
+/* ===== IMAGE GRID (editor + viewer) ===== */
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 8px;
+}
+.image-thumb {
+  position: relative;
+  width: 100%;
+  padding-top: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.image-thumb img,
+.image-thumb button.thumb-btn {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border: 0;
+}
+.image-thumb .thumb-remove {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  background: #000000cc;
+  color: #fff;
+  font-size: 14px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.image-thumb .thumb-remove:active { transform: scale(0.95); }
+
+/* ===== LIGHTBOX ===== */
+.lightbox-panel {
+  position: relative;
+  padding: 0;
+  background: transparent;
+  border: none;
+  max-width: 96%;
+}
+.lightbox-close {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: #000000cc;
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  z-index: 2;
+}
+#lightboxImg {
+  max-width: 90vw;
+  max-height: 75vh;
+  display: block;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: var(--shadow);
+}
+
+/* ===== SETTINGS ===== */
+.hr {
+  height: 1px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  margin: 14px 0 8px;
+}
+.info-block h4 {
+  margin: 8px 0 6px;
+  font-size: 1rem;
+}
+.info-block p {
+  color: var(--text-sec);
+  margin: 0 0 8px;
+  line-height: 1.4;
+}
+.info-block ul {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--text-sec);
+}
+.info-block li { margin: 4px 0; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #000000aa;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.3s ease;
+  z-index: 50;
+}
+.toast.show { 
+  opacity: 1; 
+  pointer-events: auto; 
+  display: block !important; /* ensures it overrides .hidden */
+}
+
+/* ===== ACCESSIBILITY / UTIL ===== */
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden; clip: rect(1px,1px,1px,1px);
+  white-space: nowrap;
+}
+
+/* Small tweaks for very small screens */
+@media (max-width: 340px) {
+  .key { width: 48px; height: 48px; }
+  .modal-panel { padding: 16px; }
+  .image-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Modal layout: header + scrollable body + sticky footer */
+.modal-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;           /* keep within viewport */
+  overflow: hidden;           /* body will manage scrolling */
+}
+
+/* The content area inside the editor modal scrolls */
+#secureEditorModal .modal-body {
+  overflow: auto;
+  min-height: 0;              /* allows flex child to actually shrink */
+  padding-bottom: 12px;       /* breathing room above footer */
+}
+
+/* Keep Save/Cancel visible even with long content */
+#secureEditorModal .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: rgba(10, 25, 47, 0.9);   /* match your theme */
+  backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  z-index: 3;
+}
+
+/* Cap the preview grid so it doesn’t push the footer away */
+#imagePreviewGrid {
+  max-height: 36vh;           /* tune this if you want more/less */
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+
+/* Modal = header + scrollable body + sticky footer */
+.modal-panel {
+  display: flex;
+  flex-direction: column;
+  max-height: 92vh;          /* stay within viewport */
+  overflow: hidden;           /* body handles scrolling */
+}
+
+/* Scrollable content area */
+#secureEditorModal .modal-body {
+  overflow: auto;
+  min-height: 0;              /* allows flex child to shrink on mobile */
+  padding-bottom: 12px;       /* breathing room above footer */
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Sticky action footer */
+#secureEditorModal .modal-footer {
+  position: sticky;
+  bottom: 0;
+  background: rgba(17,21,29,0.92);    /* match your panel tone */
+  backdrop-filter: blur(6px);
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 3;
+}
+
+/* Cap the preview grid height; make it scrollable inside the body */
+#imagePreviewGrid {
+  max-height: 36vh;
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+}
+
+/* (Optional) reduce bottom padding of .modal-actions in footers on small screens */
+#secureEditorModal .modal-actions {
+  margin-top: 10px;
+}
