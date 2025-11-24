@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <!-- Single consolidated viewport -->
+  <meta
+    name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"
+  />
   <meta name="theme-color" content="#0c0f14" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
   <title>BlackNote</title>
 
-  <!-- App Icon / Favicon (added) -->
+  <!-- App Icon / Favicon -->
   <link rel="icon" type="image/png" href="logo.png" />
   <link rel="apple-touch-icon" href="logo.png" />
 
@@ -18,17 +21,20 @@
   <!-- Stylesheet -->
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body data-passcode="2338346420" class="app-root">
   <!-- App Shell -->
   <div id="app" class="container">
-
     <!-- Top nav / header -->
     <header class="topbar">
       <div class="topbar-left">
-        <!-- brand row (added) -->
-        <div class="brand" style="display:flex;align-items:center;gap:10px;">
-          <img src="logo.png" alt="BlackNote logo" style="width:28px;height:28px;border-radius:6px;flex:0 0 auto;" />
-          <div>
+        <div class="brand">
+          <img
+            src="logo.png"
+            alt="BlackNote logo"
+            class="brand-logo"
+          />
+          <div class="brand-text">
             <h1 class="app-title">BlackNote</h1>
             <p class="subtitle">A notepad. A fortress.</p>
           </div>
@@ -36,20 +42,28 @@
       </div>
 
       <div class="topbar-right">
-        <!-- Trash button (single tap = confirm delete, 6 taps = open password modal) -->
+        <!-- Trash button (single tap = confirm delete, 6 taps = vault unlock) -->
         <button id="trashBtn" class="icon-btn" aria-label="Trash">
           <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path fill="currentColor" d="M9 3v1H4v2h16V4h-5V3H9zm1 6v8h2V9H10zM6 7v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6z"/>
+            <path
+              fill="currentColor"
+              d="M9 3v1H4v2h16V4h-5V3H9zm1 6v8h2V9H10zM6 7v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6z"
+            />
           </svg>
         </button>
       </div>
     </header>
 
-    <!-- Public Notepad (default view) -->
+    <!-- Main content -->
     <main class="main">
+      <!-- Public Notepad (default view) -->
       <section id="publicNoteSection" class="panel public-panel">
         <label for="publicNote" class="sr-only">Public Note</label>
-        <textarea id="publicNote" class="notepad" placeholder="Write something..."></textarea>
+        <textarea
+          id="publicNote"
+          class="notepad"
+          placeholder="Write something..."
+        ></textarea>
 
         <div class="note-actions">
           <button id="savePublicBtn" class="btn btn-primary">Save</button>
@@ -57,15 +71,18 @@
         </div>
       </section>
 
-      <!-- Hidden secure vault (initially hidden) -->
-      <section id="vaultSection" class="panel vault-panel hidden">
+      <!-- Hidden secure vault (BlackVault) -->
+      <section id="vaultSection" class="panel vault-panel hidden" aria-hidden="true">
         <div class="vault-header">
-          <h2>BlackVault.</h2>
+          <div class="vault-title-row">
+            <h2 class="vault-title">BlackVault</h2>
+            <span class="vault-badge">ENCRYPTED</span>
+          </div>
           <p class="vault-sub">What was hidden is now revealed.</p>
         </div>
 
         <!-- Storage indicator -->
-        <div class="storage-wrap">
+        <section class="storage-wrap" aria-label="Storage usage">
           <div class="storage-top">
             <span>Storage</span>
             <span id="storagePctLabel">0%</span>
@@ -73,14 +90,24 @@
           <div class="storage-bar">
             <div id="storageBarFill" class="storage-fill" style="width:0%"></div>
           </div>
-          <small id="storageDetail" class="storage-detail">0 notes · 0 images</small>
-        </div>
+          <small id="storageDetail" class="storage-detail">
+            0 notes · 0 images
+          </small>
+        </section>
 
-        <div id="secureList" class="secure-list" aria-live="polite">
-          <!-- Secure notes rendered here -->
-          <div class="empty-hint">No secure notes yet. Tap + to add one.</div>
-        </div>
+        <!-- Secure notes list -->
+        <section
+          id="secureList"
+          class="secure-list"
+          aria-live="polite"
+          aria-label="Secure notes"
+        >
+          <div class="empty-hint">
+            No secure notes yet. Tap <strong>+ Add Secure Note</strong> to begin.
+          </div>
+        </section>
 
+        <!-- Vault actions -->
         <div class="vault-actions">
           <button id="addSecureBtn" class="btn btn-accent">+ Add Secure Note</button>
           <button id="burnAllBtn" class="btn btn-danger">BURN ALL</button>
@@ -90,109 +117,143 @@
       </section>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
-      <small class="hint">Nothing to see here, unless you know where to look.</small>
+      <small class="hint">
+        Nothing to see here, unless you know where to look.
+      </small>
     </footer>
   </div>
 
-  <!-- Confirm delete modal (single tap on trash) -->
-  <div id="confirmDeleteModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirmDeleteTitle">
+  <!-- Confirm delete modal (public note) -->
+  <div
+    id="confirmDeleteModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="confirmDeleteTitle"
+  >
     <div class="modal-panel">
-      <h3 id="confirmDeleteTitle">Are you sure you want to delete?</h3>
-      <p class="modal-body">This will clear the current public notepad content.</p>
+      <h3 id="confirmDeleteTitle">Delete note?</h3>
+      <p class="modal-body">
+        This will clear the current public notepad content.
+      </p>
       <div class="modal-actions">
         <button id="confirmDeleteYes" class="btn btn-danger">Yes, delete</button>
-        <button id="confirmDeleteNo" class="btn btn-ghost">No</button>
+        <button id="confirmDeleteNo" class="btn btn-ghost">Cancel</button>
       </div>
     </div>
   </div>
 
-  <!-- Passcode keypad modal (unlock + per-action reauth) -->
-  <div id="passwordModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="passwordTitle">
-    <div class="modal-panel keypad-panel">
+  <!-- Passcode input modal (used for trapdoor + vault actions) -->
+  <div
+    id="passwordModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="passwordTitle"
+  >
+    <div class="modal-panel">
       <h3 id="passwordTitle">Enter 10-digit passcode</h3>
 
-      <div id="pinDisplay" class="pin-display" aria-hidden="true">
-        <span class="pin-dot" data-index="0"></span>
-        <span class="pin-dot" data-index="1"></span>
-        <span class="pin-dot" data-index="2"></span>
-        <span class="pin-dot" data-index="3"></span>
-        <span class="pin-dot" data-index="4"></span>
-        <span class="pin-dot" data-index="5"></span>
-        <span class="pin-dot" data-index="6"></span>
-        <span class="pin-dot" data-index="7"></span>
-        <span class="pin-dot" data-index="8"></span>
-        <span class="pin-dot" data-index="9"></span>
-      </div>
-
-      <div class="keypad" id="keypad">
-        <div class="key-row">
-          <button class="key">1</button>
-          <button class="key">2</button>
-          <button class="key">3</button>
-        </div>
-        <div class="key-row">
-          <button class="key">4</button>
-          <button class="key">5</button>
-          <button class="key">6</button>
-        </div>
-        <div class="key-row">
-          <button class="key">7</button>
-          <button class="key">8</button>
-          <button class="key">9</button>
-        </div>
-        <div class="key-row">
-          <button class="key key-empty" aria-hidden="true"></button>
-          <button class="key">0</button>
-          <button class="key key-back" aria-label="Backspace">⌫</button>
-        </div>
+      <div class="field">
+        <label for="passcodeInput">Passcode</label>
+        <input
+          id="passcodeInput"
+          class="input"
+          type="password"
+          inputmode="numeric"
+          pattern="\d{10}"
+          maxlength="10"
+          autocomplete="off"
+          placeholder="••••••••••"
+        />
+        <small class="field-hint">Exactly 10 digits. No spaces.</small>
       </div>
 
       <div class="modal-actions">
+        <button id="passwordSubmitBtn" class="btn btn-primary">Enter</button>
         <button id="cancelPasswordBtn" class="btn btn-ghost">Cancel</button>
       </div>
     </div>
   </div>
 
   <!-- Secure note editor modal (Title, Sub-Title, Link, Note, Images[]) -->
-  <div id="secureEditorModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="secureEditorTitle">
+  <div
+    id="secureEditorModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="secureEditorTitle"
+  >
     <div class="modal-panel">
       <h3 id="secureEditorTitle">New Secure Note</h3>
 
-      <!-- SCROLLABLE CONTENT -->
+      <!-- Scrollable content -->
       <div class="modal-body">
         <div class="field">
           <label for="secureTitle">Title</label>
-          <input id="secureTitle" class="input" type="text" placeholder="e.g., Server Credentials" />
+          <input
+            id="secureTitle"
+            class="input"
+            type="text"
+            placeholder="e.g., Server Credentials"
+          />
         </div>
 
         <div class="field">
           <label for="secureSubtitle">Sub-Title (list label)</label>
-          <input id="secureSubtitle" class="input" type="text" placeholder="e.g., AWS creds — prod" />
+          <input
+            id="secureSubtitle"
+            class="input"
+            type="text"
+            placeholder="e.g., AWS creds — prod"
+          />
         </div>
 
         <div class="field">
           <label for="secureLink">Link</label>
-          <input id="secureLink" class="input" type="url" placeholder="https://example.com" />
+          <input
+            id="secureLink"
+            class="input"
+            type="url"
+            placeholder="https://example.com"
+          />
         </div>
 
         <div class="field">
           <label for="secureNote">Note</label>
-          <textarea id="secureNote" class="secure-textarea" placeholder="Type your secret note..."></textarea>
+          <textarea
+            id="secureNote"
+            class="secure-textarea"
+            placeholder="Type your secret note..."
+          ></textarea>
         </div>
 
         <div class="field">
           <label for="secureImages">Images</label>
-          <input id="secureImages" class="input" type="file" accept="image/*" multiple />
+          <input
+            id="secureImages"
+            class="input"
+            type="file"
+            accept="image/*"
+            multiple
+          />
           <div id="imagePreviewGrid" class="image-grid"></div>
-          <!-- Progress bar is injected here by script.js -->
+          <!-- Image compression / save progress UI will be injected here -->
         </div>
       </div>
 
-      <!-- STICKY FOOTER -->
+      <!-- Sticky footer -->
       <div class="modal-footer">
         <div class="modal-actions">
-          <button id="editorDeleteBtn" class="btn btn-danger" style="display:none">Delete</button>
+          <button
+            id="editorDeleteBtn"
+            class="btn btn-danger"
+            style="display:none"
+          >
+            Delete
+          </button>
           <button id="saveSecureBtn" class="btn btn-accent">Save Secure</button>
           <button id="cancelSecureBtn" class="btn btn-ghost">Cancel</button>
         </div>
@@ -200,8 +261,14 @@
     </div>
   </div>
 
-  <!-- Secure note VIEWER modal (read-only after passcode) -->
-  <div id="secureViewerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="secureViewerTitle">
+  <!-- Secure note viewer modal (read-only) -->
+  <div
+    id="secureViewerModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="secureViewerTitle"
+  >
     <div class="modal-panel">
       <h3 id="secureViewerTitle">Secure Note</h3>
 
@@ -217,7 +284,13 @@
 
       <div class="viewer-block">
         <div class="viewer-label">Link</div>
-        <a id="viewLink" class="viewer-value link" href="#" target="_blank" rel="noopener"></a>
+        <a
+          id="viewLink"
+          class="viewer-value link"
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+        ></a>
       </div>
 
       <div class="viewer-block">
@@ -231,6 +304,7 @@
       </div>
 
       <div class="modal-actions">
+        <button id="viewerCopyLinkBtn" class="btn btn-ghost">Copy Link</button>
         <button id="viewerEditBtn" class="btn btn-primary">Edit</button>
         <button id="viewerDeleteBtn" class="btn btn-danger">Delete</button>
         <button id="viewerCloseBtn" class="btn btn-ghost">Close</button>
@@ -239,17 +313,34 @@
   </div>
 
   <!-- Fullscreen image viewer -->
-  <div id="imageLightbox" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="imageLightboxTitle">
+  <div
+    id="imageLightbox"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="imageLightboxTitle"
+  >
     <div class="modal-panel lightbox-panel">
-      <!-- added hidden title to satisfy aria-labelledby without changing UI -->
       <h3 id="imageLightboxTitle" class="sr-only">Image</h3>
-      <button id="imageLightboxClose" class="lightbox-close" aria-label="Close">✕</button>
-      <img id="lightboxImg" alt="Image" />
+      <button
+        id="imageLightboxClose"
+        class="lightbox-close"
+        aria-label="Close image"
+      >
+        ✕
+      </button>
+      <img id="lightboxImg" alt="Secure note image" />
     </div>
   </div>
 
   <!-- Settings modal -->
-  <div id="settingsModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div
+    id="settingsModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="settingsTitle"
+  >
     <div class="modal-panel">
       <h3 id="settingsTitle">Settings</h3>
 
@@ -261,62 +352,114 @@
             <span id="storagePctLabelSettings">0%</span>
           </div>
           <div class="storage-bar">
-            <div id="storageBarFillSettings" class="storage-fill" style="width:0%"></div>
+            <div
+              id="storageBarFillSettings"
+              class="storage-fill"
+              style="width:0%"
+            ></div>
           </div>
-          <small id="storageDetailSettings" class="storage-detail">0 notes · 0 images</small>
+          <small
+            id="storageDetailSettings"
+            class="storage-detail"
+          >
+            0 notes · 0 images
+          </small>
         </div>
       </div>
 
       <div class="field">
         <label for="currentPassInput">Current 10-digit passcode</label>
-        <input id="currentPassInput" class="input" type="tel" inputmode="numeric" pattern="\\d{10}" placeholder="••••••••••" />
+        <input
+          id="currentPassInput"
+          class="input"
+          type="password"
+          inputmode="numeric"
+          pattern="\d{10}"
+          autocomplete="off"
+          placeholder="••••••••••"
+        />
       </div>
+
       <div class="field">
         <label for="newPassInput">New 10-digit passcode</label>
-        <input id="newPassInput" class="input" type="tel" inputmode="numeric" pattern="\\d{10}" placeholder="10 digits" />
+        <input
+          id="newPassInput"
+          class="input"
+          type="password"
+          inputmode="numeric"
+          pattern="\d{10}"
+          autocomplete="off"
+          placeholder="10 digits"
+        />
       </div>
+
       <div class="field">
         <label for="confirmPassInput">Confirm new passcode</label>
-        <input id="confirmPassInput" class="input" type="tel" inputmode="numeric" pattern="\\d{10}" placeholder="Repeat 10 digits" />
+        <input
+          id="confirmPassInput"
+          class="input"
+          type="password"
+          inputmode="numeric"
+          pattern="\d{10}"
+          autocomplete="off"
+          placeholder="Repeat 10 digits"
+        />
       </div>
 
       <div class="modal-actions">
-        <button id="changePassBtn" class="btn btn-primary">Change Passcode</button>
+        <button id="changePassBtn" class="btn btn-primary">
+          Change Passcode
+        </button>
         <button id="settingsCloseBtn" class="btn btn-ghost">Close</button>
       </div>
 
       <hr class="hr" />
 
       <div class="info-block">
-        <h4>About Sexure Notes</h4>
+        <h4>About BlackVault</h4>
         <p>
-          A disguised notepad that unlocks a hidden encrypted vault when you tap the trash icon 6 times and enter your 10-digit passcode.
-          Each secure note is encrypted locally using AES-GCM (key derived from your passcode with PBKDF2).
-          Nothing leaves your device.
+          A disguised notepad that unlocks a hidden encrypted vault when you 
+          tap the trash icon 6 times or save a note with the trap phrase.
         </p>
         <ul>
-          <li>Long-press a note row to quick-delete.</li>
+          <li>Each secure note is encrypted locally (AES-GCM).</li>
+          <li>Passcode derives the key via PBKDF2; nothing leaves your device.</li>
           <li>“BURN ALL” wipes every secure note and your public note.</li>
-          <li>Storage bar estimates usage based on encrypted data size.</li>
         </ul>
       </div>
     </div>
   </div>
 
   <!-- Burn-all confirmation modal -->
-  <div id="burnAllModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="burnAllTitle">
+  <div
+    id="burnAllModal"
+    class="modal hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="burnAllTitle"
+  >
     <div class="modal-panel">
       <h3 id="burnAllTitle">Delete ALL notes?</h3>
-      <p class="modal-body">This will permanently delete all secure notes and clear the public note. This cannot be undone.</p>
+      <p class="modal-body">
+        This will permanently delete all secure notes and clear the public note.
+        This cannot be undone.
+      </p>
       <div class="modal-actions">
-        <button id="burnAllYes" class="btn btn-danger">Yes, burn everything</button>
+        <button id="burnAllYes" class="btn btn-danger">
+          Yes, burn everything
+        </button>
         <button id="burnAllNo" class="btn btn-ghost">No, keep them</button>
       </div>
     </div>
   </div>
 
   <!-- Toast area -->
-  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <div
+    id="toast"
+    class="toast hidden"
+    role="status"
+    aria-live="polite"
+  ></div>
 
   <!-- Script -->
   <script src="script.js" defer></script>
