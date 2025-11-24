@@ -7,6 +7,7 @@
    - Editor modal "Delete" button (only visible while editing)
    - Trapdoor keyword ("hiddendoor") to open vault from public note
    - Viewer/Vault: bulletproof touch scrolling (iOS-safe)
+   - Copy Link button in viewer
    ========================================================= */
 
 const $ = (sel, root = document) => root.querySelector(sel);
@@ -123,9 +124,9 @@ const confirmDeleteNo = $("#confirmDeleteNo");
 
 const passwordModal = $("#passwordModal");
 const passwordTitle = $("#passwordTitle");
+const passcodeInput = $("#passcodeInput");
+const passwordSubmitBtn = $("#passwordSubmitBtn");
 const cancelPasswordBtn = $("#cancelPasswordBtn");
-const pinDots = $$("#pinDisplay .pin-dot");
-const keypad = $("#keypad");
 
 const secureEditorModal = $("#secureEditorModal");
 const secureEditorTitle = $("#secureEditorTitle");
@@ -146,6 +147,7 @@ const viewSubtitle = $("#viewSubtitle");
 const viewLink = $("#viewLink");
 const viewNote = $("#viewNote");
 const viewImageGrid = $("#viewImageGrid");
+const viewerCopyLinkBtn = $("#viewerCopyLinkBtn");
 const viewerEditBtn = $("#viewerEditBtn");
 const viewerDeleteBtn = $("#viewerDeleteBtn");
 const viewerCloseBtn = $("#viewerCloseBtn");
@@ -189,7 +191,6 @@ let tapTimer = null;
 let db;
 
 let currentPasscode = null; // session unlocked
-let pinBuffer = "";
 let passResolve = null;
 let currentViewedRecord = null;
 let currentViewedData = null;
@@ -235,10 +236,6 @@ function vibrate(ms = 50) { try { navigator.vibrate && navigator.vibrate(ms); } 
 })();
 publicNoteEl?.addEventListener("input", () => {
   const val = publicNoteEl.value || "";
-  if (val.trim().toLowerCase() === TRAPWORD) {
-    try { localStorage.removeItem("publicNote"); } catch {}
-    return;
-  }
   localStorage.setItem("publicNote", val);
 });
 savePublicBtn?.addEventListener("click", () => {
@@ -294,62 +291,71 @@ confirmDeleteYes?.addEventListener("click", () => {
 confirmDeleteNo?.addEventListener("click", () => hide(confirmDeleteModal));
 
 /* -----------------------
-   Passcode keypad modal
+   Passcode modal (text input)
 ----------------------- */
-function renderPinDots() { pinDots.forEach((dot, i) => dot.classList.toggle("filled", i < pinBuffer.length)); }
-function resetPin() { pinBuffer = ""; renderPinDots(); }
-
-function promptPasscodeInternal(titleText = "Enter 10-digit passcode") {
-  passwordTitle.textContent = titleText;
-  resetPin();
+function openPasscodeModal(titleText = "Enter 10-digit passcode") {
+  if (!passwordModal) return Promise.resolve(false);
+  passwordTitle && (passwordTitle.textContent = titleText);
+  if (passcodeInput) {
+    passcodeInput.value = "";
+  }
   show(passwordModal);
-  return new Promise((resolve) => { passResolve = resolve; });
+  // small delay so browser paints modal before focus
+  setTimeout(() => {
+    try { passcodeInput && passcodeInput.focus(); } catch {}
+  }, 30);
+  return new Promise((resolve) => {
+    passResolve = resolve;
+  });
 }
-function resolvePass(ok) {
+
+function closePasscodeModal(ok = false) {
   hide(passwordModal);
-  resetPin();
   const r = passResolve;
   passResolve = null;
-  if (r) r(ok);
+  if (typeof r === "function") r(ok);
 }
-cancelPasswordBtn?.addEventListener("click", () => resolvePass(false));
 
-keypad?.addEventListener("click", (e) => {
-  const key = e.target.closest(".key");
-  if (!key) return;
-  if (key.classList.contains("key-empty")) return;
-
-  if (key.classList.contains("key-back")) {
-    pinBuffer = pinBuffer.slice(0, -1);
-    renderPinDots();
-    vibrate(20);
+function handlePasscodeSubmit() {
+  if (!passcodeInput) { closePasscodeModal(false); return; }
+  const val = (passcodeInput.value || "").trim();
+  if (!/^\d{10}$/.test(val)) {
+    toast("Passcode must be 10 digits");
     return;
   }
-
-  const val = key.textContent.trim();
-  if (/^\d$/.test(val) && pinBuffer.length < 10) {
-    pinBuffer += val;
-    renderPinDots();
-    vibrate(15);
+  if (val !== APP_PASSCODE) {
+    toast("Incorrect passcode");
+    passcodeInput.value = "";
+    try { passcodeInput.focus(); } catch {}
+    return;
   }
+  closePasscodeModal(true);
+}
 
-  if (pinBuffer.length === 10) {
-    setTimeout(() => {
-      const ok = (pinBuffer === APP_PASSCODE);
-      if (!ok) { vibrate(120); toast("Incorrect passcode"); resetPin(); return; }
-      resolvePass(true);
-    }, 110);
+cancelPasswordBtn?.addEventListener("click", () => {
+  closePasscodeModal(false);
+});
+
+passwordSubmitBtn?.addEventListener("click", (e) => {
+  e?.preventDefault?.();
+  handlePasscodeSubmit();
+});
+
+passcodeInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    handlePasscodeSubmit();
   }
 });
 
 async function withPasscode(title, onSuccess) {
-  const ok = await promptPasscodeInternal(title);
+  const ok = await openPasscodeModal(title);
   if (!ok) return;
-  onSuccess?.();
+  onSuccess && onSuccess();
 }
 
 /* ---------------------------------------------------------
-   Body scroll lock helpers (used by modals)
+   Body scroll lock helpers
 --------------------------------------------------------- */
 function lockBodyScroll() {
   _bodyScrollY = window.scrollY || document.documentElement.scrollTop || 0;
@@ -521,7 +527,7 @@ async function addNote(record) {
     const { s } = txStore("secureNotes", "readwrite");
     const req = s.add(record);
     req.onsuccess = () => resolve(req.result);
-  req.onerror = () => reject(req.error);
+    req.onerror = () => reject(req.error);
   });
 }
 async function updateNote(record) {
@@ -958,14 +964,20 @@ function openViewer(data, record) {
   if (viewSubtitle) viewSubtitle.textContent = data.subtitle || "(none)";
 
   const link = (data.link || "").trim();
-  if (link) { viewLink.textContent = link; viewLink.href = link.startsWith("http") ? link : `https://${link}`; }
-  else { viewLink.textContent = "(none)"; viewLink.removeAttribute("href"); }
+  if (link) {
+    viewLink.textContent = link;
+    viewLink.href = link.startsWith("http") ? link : `https://${link}`;
+  } else {
+    viewLink.textContent = "(none)";
+    viewLink.removeAttribute("href");
+  }
   viewNote.textContent = data.note || "";
   renderViewerImages(Array.isArray(data.images) ? data.images : []);
 
   lockBodyScroll();               // lock page behind modal
   requestAnimationFrame(sizeViewerScrollRegion);
 
+  // EDIT
   viewerEditBtn.onclick = () => {
     withPasscode("Re-enter passcode to edit", () => {
       closeViewerInternal();
@@ -981,6 +993,8 @@ function openViewer(data, record) {
       show(secureEditorModal);
     });
   };
+
+  // DELETE
   viewerDeleteBtn.onclick = async () => {
     const sure = confirm("Delete this note permanently?");
     if (!sure) return;
@@ -989,7 +1003,43 @@ function openViewer(data, record) {
     toast("Deleted");
     renderSecureList(); updateStorageUI();
   };
+
+  // CLOSE
   viewerCloseBtn.onclick = () => closeViewerInternal();
+
+  // COPY LINK
+  if (viewerCopyLinkBtn) {
+    viewerCopyLinkBtn.onclick = async () => {
+      const rawLink = (currentViewedData?.link || "").trim();
+      if (!rawLink) {
+        toast("No link to copy");
+        return;
+      }
+      const finalLink = rawLink.startsWith("http") ? rawLink : `https://${rawLink}`;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(finalLink);
+        } else {
+          // Fallback for older browsers
+          const tmp = document.createElement("textarea");
+          tmp.value = finalLink;
+          tmp.style.position = "fixed";
+          tmp.style.opacity = "0";
+          document.body.appendChild(tmp);
+          tmp.focus();
+          tmp.select();
+          try { document.execCommand("copy"); } catch {}
+          document.body.removeChild(tmp);
+        }
+        toast("Link copied");
+      } catch (err) {
+        console.error("Copy failed:", err);
+        toast("Could not copy link");
+      }
+    };
+  } else {
+    console.warn("viewerCopyLinkBtn not found — make sure the Copy button exists in HTML with id='viewerCopyLinkBtn'");
+  }
 
   show(secureViewerModal);
 }
@@ -1319,7 +1369,7 @@ saveSecureBtn?.addEventListener("click", async (ev) => {
   hide(vaultSection); show(publicNoteSection);
   updateStorageUI();
 
-  // Make sure existing panels are set as scrollable on boot (in case of SSR/rehydration)
+  // Make sure existing panels are set as scrollable on boot
   if (vaultSection) makeScrollable(vaultSection);
   if (secureViewerModal) {
     const body = secureViewerModal.querySelector('.modal-body');
@@ -1328,8 +1378,8 @@ saveSecureBtn?.addEventListener("click", async (ev) => {
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
-      [confirmDeleteModal, passwordModal, secureEditorModal, secureViewerModal, burnAllModal, settingsModal, imageLightbox].forEach(hide);
-      pinBuffer = ""; renderPinDots();
+      [confirmDeleteModal, secureEditorModal, secureViewerModal, burnAllModal, settingsModal, imageLightbox].forEach(hide);
+      if (passwordModal) closePasscodeModal(false);
       currentViewedRecord = null; currentViewedData = null;
       currentLightboxIndex = -1; lightboxImg.src = "";
       hideProgressUI();
